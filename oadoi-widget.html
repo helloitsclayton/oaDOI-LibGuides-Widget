@@ -25,7 +25,7 @@ $(document).ready(function() {
 				$(this).show();
 			});
 		});
-		var doi = 'http://api.oadoi.org/v1/publication/doi/'+$('#doi').val()+'?email='+email;
+		var doi = 'https://api.oadoi.org/v1/publication/doi/'+$('#doi').val()+'?email='+email;
 		$('#doi').val('');
 		$.ajax({
 			url : doi,
