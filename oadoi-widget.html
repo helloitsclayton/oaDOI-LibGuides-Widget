@@ -1,0 +1,61 @@
+<div class="row">
+	<div class="col-sm-6">
+		<div class="input-group">
+			<input type="text" class="form-control" placeholder="Enter a DOI" name="DOI" id="doi">
+			<span class="input-group-btn">
+			<button class="btn btn-default" type="button" id="button"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+		</span>
+		</div>
+	</div>
+	<div class="col-sm-6">
+		<div id="resultsbox"></div>
+	</div>
+</div>
+<p style="padding-top:1em;font-size:12px;font-style:italic;text-align:center;"><a href="http://oadoi.org/about">Learn more about oaDOI</a></p>
+
+<script>
+$(document).ready(function() {
+	var email = "replace this with your email address"; // replace everything in quotes with your email address
+	var result = "";
+	var doi = "";
+	$("#button").click(function() {
+		$("#resultsbox").html('<div style="width:60%;margin:auto auto;" id="loadingbox"><span class="glyphicon glyphicon-chevron-right" style="padding-top:10px; width:25%; display:none;" aria-hidden="true"></span><span class="glyphicon glyphicon-chevron-right" style="padding-top:10px; width:25%; display:none;" aria-hidden="true"></span><span class="glyphicon glyphicon-chevron-right" style="padding-top:10px; width:25%; display:none;" aria-hidden="true"></span></div>');
+		$("#loadingbox > span").each(function(i) {
+			$(this).delay(750*i).fadeTo(1000, 1, function() {
+				$(this).show();
+			});
+		});
+		var doi = 'http://api.oadoi.org/v1/publication/doi/'+$('#doi').val()+'?email='+email;
+		$('#doi').val('');
+		$.ajax({
+			url : doi,
+			type : 'GET',
+			dataType:'json',
+			success : function(data) {
+				result=data;
+				if (result.results["0"].free_fulltext_url==null) {
+					$("#loadingbox").append('<span class="glyphicon glyphicon-remove-sign" style="padding-top:10px; width:25%; display:none;color:gold;" aria-hidden="true" id="resultsicon"></span>');
+					$("#resultsicon").delay(2500).fadeTo(1000,1,function() {
+						$(this).show();
+						$('#resultsbox').append('<p style="padding-top:10px">No open fulltext available.</p>');
+					});
+				}
+				else {
+					$("#loadingbox").append('<span class="glyphicon glyphicon-ok-sign" style="padding-top:10px; width:25%; display:none;color:green;" aria-hidden="true" id="resultsicon"></span>');
+					$("#resultsicon").delay(2500).fadeTo(1000,1,function() {
+						$(this).show();
+						$('#resultsbox').append('<p style="padding-top:10px"><a href="'+result.results["0"].free_fulltext_url+'">Link to open full text</a>.</p>');
+					});
+				}
+			},
+			error : function(request,error) {
+				$("#loadingbox").append('<span class="glyphicon glyphicon-minus-sign" style="padding-top:10px; width:25%; display:none; color:red;" aria-hidden="true" id="resultsicon"></span>');
+				$("#resultsicon").delay(2500).fadeTo(1000,1,function() {
+						$(this).show();
+						$("#resultsbox").append('<p style="padding-top:10px">Sorry, something has gone wrong. Check to make sure you\'re submitting a valid DOI.</p>');
+				});
+			}
+		});
+	});
+});
+</script>
